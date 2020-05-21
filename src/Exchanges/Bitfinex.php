@@ -6,31 +6,31 @@
 namespace Lin\Exchange\Exchanges;
 
 
-use Lin\Bitmex\Bitmex as BitmexApi;
+use Lin\Bitfinex\Bitfinex as BitfinexApi;
 use Lin\Exchange\Interfaces\AccountInterface;
 use Lin\Exchange\Interfaces\MarketInterface;
 use Lin\Exchange\Interfaces\TraderInterface;
 
-class BaseBitmex
+class BaseBitfinex
 {
     protected $platform;
     
-    function __construct(BitmexApi $platform){
+    function __construct(BitfinexApi $platform){
         $this->platform=$platform;
     }
 }
 
-class AccountBitmex extends BaseBitmex implements AccountInterface
+class AccountBitfinex extends BaseBitfinex implements AccountInterface
 {
     /**
      *
      * */
     function get(array $data){
-        return $this->platform->position()->get($data);
+        return [];
     }
 }
 
-class MarketBitmex extends BaseBitmex implements MarketInterface
+class MarketBitfinex extends BaseBitfinex implements MarketInterface
 {
     /**
      *
@@ -40,27 +40,27 @@ class MarketBitmex extends BaseBitmex implements MarketInterface
     }
 }
 
-class TraderBitmex extends BaseBitmex implements TraderInterface
+class TraderBitfinex extends BaseBitfinex implements TraderInterface
 {
     /**
      *
      * */
     function sell(array $data){
-        return $this->platform->order()->post($data);
+        return [];
     }
     
     /**
      *
      * */
     function buy(array $data){
-        return $this->platform->order()->post($data);
+        return [];
     }
     
     /**
      *
      * */
     function cancel(array $data){
-        return current($this->platform->order()->delete($data));
+        return [];
     }
     
     /**
@@ -74,7 +74,7 @@ class TraderBitmex extends BaseBitmex implements TraderInterface
      *
      * */
     function show(array $data){
-        return $this->platform->order()->getOne($data);
+        return [];
     }
     
     /**
@@ -85,26 +85,26 @@ class TraderBitmex extends BaseBitmex implements TraderInterface
     }
 }
 
-class Bitmex
+class Bitfinex
 {
     protected $platform;
     
     function __construct($key,$secret,$host=''){
-        $host=empty($host) ? 'https://www.bitmex.com' : $host ;
+        $host=empty($host) ? 'https://api.bitfinex.com' : $host ;
         
-        $this->platform=new BitmexApi($key,$secret,$host);
+        $this->platform=new BitfinexApi($key,$secret,$host);
     }
     
     function account(){
-        return new AccountBitmex($this->platform);
+        return new AccountBitfinex($this->platform);
     }
     
     function market(){
-        return new MarketBitmex($this->platform);
+        return new MarketBitfinex($this->platform);
     }
     
     function trader(){
-        return new TraderBitmex($this->platform);
+        return new TraderBitfinex($this->platform);
     }
     
     function getPlatform(string $type=''){

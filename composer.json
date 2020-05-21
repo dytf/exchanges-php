@@ -1,9 +1,9 @@
 {
     "name": "linwj/exchanges",
     "type": "library",
-    "description": "It's a simple integration of the world's top five exchanges",
+    "description": "This is a virtual currency SDK that brings together multiple exchanges",
     "license": "MIT",
-    "keywords": ["bitmex", "binance", "okex", "huobi"],
+    "keywords": ["exchange","bitmex", "binance", "okex", "huobi","kucoin","kumex","coinbase","mxc","zb","bitfinex"],
     "authors": [
         {
             "name": "linwenjun",
@@ -20,6 +20,11 @@
         "linwj/bitmex":"*",
         "linwj/okex":"*",
         "linwj/huobi":"*",
-        "linwj/binance":"*"
+        "linwj/binance":"*",
+        "linwj/kucoin":"*",
+        "linwj/coinbase":"*",
+        "linwj/mxc":"*",
+        "linwj/zb":"*",
+        "linwj/bitfinex":"*"
     }
 }

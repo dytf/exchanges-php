@@ -5,32 +5,31 @@
 
 namespace Lin\Exchange\Exchanges;
 
-
-use Lin\Bitmex\Bitmex as BitmexApi;
+use Lin\Mxc\MxcSpot;
 use Lin\Exchange\Interfaces\AccountInterface;
 use Lin\Exchange\Interfaces\MarketInterface;
 use Lin\Exchange\Interfaces\TraderInterface;
 
-class BaseBitmex
+class BaseMxc
 {
-    protected $platform;
+    protected $platform_spot;
     
-    function __construct(BitmexApi $platform){
-        $this->platform=$platform;
+    function __construct(MxcSpot $platform_spot){
+        $this->platform_spot=$platform_spot;
     }
 }
 
-class AccountBitmex extends BaseBitmex implements AccountInterface
+class AccountMxc extends BaseMxc implements AccountInterface
 {
     /**
      *
      * */
     function get(array $data){
-        return $this->platform->position()->get($data);
+        return [];
     }
 }
 
-class MarketBitmex extends BaseBitmex implements MarketInterface
+class MarketMxc extends BaseMxc implements MarketInterface
 {
     /**
      *
@@ -40,27 +39,27 @@ class MarketBitmex extends BaseBitmex implements MarketInterface
     }
 }
 
-class TraderBitmex extends BaseBitmex implements TraderInterface
+class TraderMxc extends BaseMxc implements TraderInterface
 {
     /**
      *
      * */
     function sell(array $data){
-        return $this->platform->order()->post($data);
+        return [];
     }
     
     /**
      *
      * */
     function buy(array $data){
-        return $this->platform->order()->post($data);
+        return [];
     }
     
     /**
      *
      * */
     function cancel(array $data){
-        return current($this->platform->order()->delete($data));
+        return [];
     }
     
     /**
@@ -74,7 +73,7 @@ class TraderBitmex extends BaseBitmex implements TraderInterface
      *
      * */
     function show(array $data){
-        return $this->platform->order()->getOne($data);
+        return [];
     }
     
     /**
@@ -85,36 +84,42 @@ class TraderBitmex extends BaseBitmex implements TraderInterface
     }
 }
 
-class Bitmex
+class Mxc
 {
-    protected $platform;
+    protected $platform_spot;
     
     function __construct($key,$secret,$host=''){
-        $host=empty($host) ? 'https://www.bitmex.com' : $host ;
-        
-        $this->platform=new BitmexApi($key,$secret,$host);
+        $this->platform_spot=new MxcSpot($key,$secret,empty($host) ? 'https://www.mxc.co' : $host);
     }
     
     function account(){
-        return new AccountBitmex($this->platform);
+        return new AccountMxc($this->platform_spot);
     }
     
     function market(){
-        return new MarketBitmex($this->platform);
+        return new MarketMxc($this->platform_spot);
     }
     
     function trader(){
-        return new TraderBitmex($this->platform);
+        return new TraderMxc($this->platform_spot);
     }
     
     function getPlatform(string $type=''){
-        return $this->platform;
+        switch (strtolower($type)){
+            case 'spot':{
+                return $this->platform_spot;
+            }
+            default:{
+                return $this->platform_spot;
+            }
+        }
     }
+    
     
     /**
      * Support for more request Settings
      * */
     function setOptions(array $options=[]){
-        $this->platform->setOptions($options);
+        $this->platform_spot->setOptions($options);
     }
 }

@@ -19,65 +19,68 @@ class Exchanges
     
     protected $platform;
     
-    protected $proxy=false;
-    
     protected $acount;
     protected $market;
     protected $trader;
     
+    protected $options=[];
     
-    function __construct(string $exchange,string $key,string $secret,string $extra='',string $host=''){
+    
+    function __construct(string $exchange,string $key='',string $secret='',string $extra='',string $host=''){
         $this->exchange=$exchange;
         $this->key=$key;
         $this->secret=$secret;
         $this->extra=$extra;
         $this->host=$host;
+        
+        if(stripos($extra,'http')===0) {
+            $this->host=$extra;
+            $this->extra='';
+        }
     }
     
+    /**
+     * 
+     * */
     function account(){
         $this->acount=new Account($this->exchange,$this->key,$this->secret,$this->extra,$this->host);
-        $this->acount->setProxy($this->proxy);
+        $this->acount->setOptions($this->options);
         return $this->acount;
     }
     
+    /**
+    *
+    * */
     function market(){
         $this->market=new Market($this->exchange,$this->key,$this->secret,$this->extra,$this->host);
-        $this->market->setProxy($this->proxy);
+        $this->market->setOptions($this->options);
         return $this->market;
     }
     
+    /**
+    *
+    * */
     function trader(){
         $this->trader=new Trader($this->exchange,$this->key,$this->secret,$this->extra,$this->host);
-        $this->trader->setProxy($this->proxy);
+        $this->trader->setOptions($this->options);
         return $this->trader;
     }
     
     /**
-     * 支持原生访问
+     * Returns the underlying instance object
      * */
     public function getPlatform(string $type=''){
         if($this->trader!==null) return $this->trader->getPlatform($type);
         if($this->market!==null) return $this->market->getPlatform($type);
         if($this->acount!==null) return $this->acount->getPlatform($type);
         
-        //如果没有就初始化
         return $this->trader()->getPlatform($type);
     }
     
     /**
-     * Local development sets the proxy
-     * @param bool|array
-     * $proxy=false Default
-     * $proxy=true  Local proxy http://127.0.0.1:12333
-     *
-     * Manual proxy
-     * $proxy=[
-     'http'  => 'http://127.0.0.1:12333',
-     'https' => 'http://127.0.0.1:12333',
-     'no'    =>  ['.cn']
-     * ]
+     * Support for more request Settings
      * */
-    function setProxy($proxy=true){
-        $this->proxy=$proxy;
+    function setOptions(array $options=[]){
+        $this->options=$options;
     }
 }

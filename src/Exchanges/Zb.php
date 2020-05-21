@@ -6,31 +6,31 @@
 namespace Lin\Exchange\Exchanges;
 
 
-use Lin\Bitmex\Bitmex as BitmexApi;
+use Lin\Zb\Zb as ZbApi;
 use Lin\Exchange\Interfaces\AccountInterface;
 use Lin\Exchange\Interfaces\MarketInterface;
 use Lin\Exchange\Interfaces\TraderInterface;
 
-class BaseBitmex
+class BaseZb
 {
     protected $platform;
     
-    function __construct(BitmexApi $platform){
+    function __construct(ZbApi $platform){
         $this->platform=$platform;
     }
 }
 
-class AccountBitmex extends BaseBitmex implements AccountInterface
+class AccountZb extends BaseZb implements AccountInterface
 {
     /**
      *
      * */
     function get(array $data){
-        return $this->platform->position()->get($data);
+        return [];
     }
 }
 
-class MarketBitmex extends BaseBitmex implements MarketInterface
+class MarketZb extends BaseZb implements MarketInterface
 {
     /**
      *
@@ -40,27 +40,27 @@ class MarketBitmex extends BaseBitmex implements MarketInterface
     }
 }
 
-class TraderBitmex extends BaseBitmex implements TraderInterface
+class TraderZb extends BaseZb implements TraderInterface
 {
     /**
      *
      * */
     function sell(array $data){
-        return $this->platform->order()->post($data);
+        return [];
     }
     
     /**
      *
      * */
     function buy(array $data){
-        return $this->platform->order()->post($data);
+        return [];
     }
     
     /**
      *
      * */
     function cancel(array $data){
-        return current($this->platform->order()->delete($data));
+        return [];
     }
     
     /**
@@ -74,7 +74,7 @@ class TraderBitmex extends BaseBitmex implements TraderInterface
      *
      * */
     function show(array $data){
-        return $this->platform->order()->getOne($data);
+        return [];
     }
     
     /**
@@ -85,26 +85,26 @@ class TraderBitmex extends BaseBitmex implements TraderInterface
     }
 }
 
-class Bitmex
+class Zb
 {
     protected $platform;
     
     function __construct($key,$secret,$host=''){
-        $host=empty($host) ? 'https://www.bitmex.com' : $host ;
+        $host=empty($host) ? 'https://trade.zb.live' : $host ;
         
-        $this->platform=new BitmexApi($key,$secret,$host);
+        $this->platform=new ZbApi($key,$secret,$host);
     }
     
     function account(){
-        return new AccountBitmex($this->platform);
+        return new AccountZb($this->platform);
     }
     
     function market(){
-        return new MarketBitmex($this->platform);
+        return new MarketZb($this->platform);
     }
     
     function trader(){
-        return new TraderBitmex($this->platform);
+        return new TraderZb($this->platform);
     }
     
     function getPlatform(string $type=''){

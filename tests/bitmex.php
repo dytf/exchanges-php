@@ -15,9 +15,25 @@ include 'key_secret.php';
 $key=$keysecret['bitmex']['key'];
 $secret=$keysecret['bitmex']['secret'];
 $host=$keysecret['bitmex']['host'];
-$extra='';
 
-$exchanges=new Exchanges('bitmex',$key,$secret,$extra,$host);
+$exchanges=new Exchanges('bitmex',$key,$secret,$host);
+
+//Support for more request Settings
+$exchanges->setOptions([
+    //Set the request timeout to 60 seconds by default
+    'timeout'=>10,
+    
+    //If you are developing locally and need an agent, you can set this
+    //'proxy'=>true,
+    //More flexible Settings
+    /* 'proxy'=>[
+     'http'  => 'http://127.0.0.1:12333',
+     'https' => 'http://127.0.0.1:12333',
+     'no'    =>  ['.cn']
+     ], */
+    //Close the certificate
+    //'verify'=>false,
+]);
 
 $action=intval($_GET['action'] ?? 0);//http pattern
 if(empty($action)) $action=intval($argv[1]);//cli pattern
@@ -51,16 +67,6 @@ switch ($action){
     }
     
     case 2:{
-        //If you are developing locally and need an agent, you can set this
-        $exchanges->setProxy();
-        
-        //More flexible Settings
-        $exchanges->setProxy([
-            'http'  => 'http://127.0.0.1:12333',
-            'https' => 'http://127.0.0.1:12333',
-        ]);
-        
-        //bargaining transaction
         //Default return all
         $result=$exchanges->account()->get([
             //'_symbol'=>'XBTUSD'
@@ -201,6 +207,35 @@ switch ($action){
         break;
     }
     
+    case 401:{
+        /* $result=$exchanges->trader()->show([
+            '_symbol'=>'XBTUSD',
+            '_order_id'=>'63d0550b-1f3f-9ea5-ec6c-32d416a3ee85',
+        ]); */
+        
+        /* $_client_id=rand(11111,99999).rand(11111,99999).rand(11111,99999);
+        $result=$exchanges->trader()->buy([
+            '_symbol'=>'XBTUSD',
+            '_number'=>'1',
+            '_price'=>100,
+            '_client_id'=>$_client_id,
+        ]);
+        print_r($result);
+        
+        $result=$exchanges->trader()->cancel([
+            '_symbol'=>'XBTUSD',
+            //'_order_id'=>$result['_order_id'],
+            '_client_id'=>$_client_id,
+        ]);  */
+        
+        $result=$exchanges->trader()->show([
+            '_symbol'=>'XBTUSD',
+            '_order_id'=>'a0283eec-d6a9-a30f-08a2-1f9f250189bc',
+            //'_client_id'=>'971668136216134',
+        ]);
+        break;
+    }
+    
     //
     case 500:{
         //The original object，
@@ -210,6 +245,21 @@ switch ($action){
             'side'=>'Buy',
             'orderQty'=>'1',
             'ordType'=>'Limit',
+        ]);
+        break;
+    }
+    
+    case 1001:{
+        //Public API
+        $exchanges=new Exchanges('bitmex');
+        $exchanges->setOptions([
+            'timeout'=>10,
+            'proxy'=>true,
+            'verify'=>false,
+        ]);
+        $result=$exchanges->getPlatform()->orderBook()->get([
+            'symbol'=>'ETHUSD',
+            'depth'=>20
         ]);
         break;
     }

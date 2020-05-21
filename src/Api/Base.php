@@ -5,12 +5,17 @@
 
 namespace Lin\Exchange\Api;
 
+use Lin\Exchange\Map\Map;
 use Lin\Exchange\Exchanges\Huobi;
 use Lin\Exchange\Exchanges\Bitmex;
 use Lin\Exchange\Exchanges\Okex;
 use Lin\Exchange\Exchanges\Binance;
 use Lin\Exchange\Exceptions\Exception;
-use Lin\Exchange\Map\Map;
+use Lin\Exchange\Exchanges\Ku;
+use Lin\Exchange\Exchanges\Bitfinex;
+use Lin\Exchange\Exchanges\Mxc;
+use Lin\Exchange\Exchanges\Coinbase;
+use Lin\Exchange\Exchanges\Zb;
 
 
 class Base
@@ -19,10 +24,8 @@ class Base
     
     protected $map;
     
-    protected $proxy=false;
-    
     /**
-     * 初始化交易所
+     * 
      * */
     function __construct(string $platform,string $key,string $secret,string $extra='',string $host=''){
         $platform=strtolower($platform);
@@ -44,6 +47,26 @@ class Base
                 $this->platform=new Binance($key,$secret,$host);
                 break;
             }
+            case 'kucoin':{
+                $this->platform=new Ku($key,$secret,$extra,$host);
+                break;
+            }
+            case 'bitfinex':{
+                $this->platform=new Bitfinex($key,$secret,$host);
+                break;
+            }
+            case 'mxc':{
+                $this->platform=new Mxc($key,$secret,$host);
+                break;
+            }
+            case 'coinbase':{
+                $this->platform=new Coinbase($key,$secret,$extra,$host);
+                break;
+            }
+            case 'zb':{
+                $this->platform=new Zb($key,$secret);
+                break;
+            }
             default:{
                 throw new Exception("Exchanges don't exist");
             }
@@ -54,12 +77,19 @@ class Base
     
     /**
      *
-     * @param
-     * @param int 错误类型
+     * @param 
      * @return array
      * */
     protected function error($msg){
-        $msg=json_decode($msg,true);
+        if(stripos($msg,'Connection timed out after')!==false){
+            $httpcode=504;
+        }
+        
+        $temp=json_decode($msg,true);
+        if(!empty($temp) && is_array($temp)) {
+            if(isset($httpcode)) $temp['_httpcode']=$httpcode;
+            return ['_error'=>$temp];
+        }
         
         return [
             '_error'=>$msg,
@@ -67,28 +97,16 @@ class Base
     }
     
     /**
-     * 
+     * Returns the underlying instance object
      * */
     function getPlatform(string $type=''){
         return $this->platform->getPlatform($type);
     }
     
     /**
-     * Local development sets the proxy
-     * @param bool|array
-     * $proxy=false Default
-     * $proxy=true  Local proxy http://127.0.0.1:12333
-     *
-     * Manual proxy
-     * $proxy=[
-     'http'  => 'http://127.0.0.1:12333',
-     'https' => 'http://127.0.0.1:12333',
-     'no'    =>  ['.cn']
-     * ]
-     * 
-     * @param mixed
+     * Support for more request Settings
      * */
-    function setProxy($proxy=true){
-        $this->platform->setProxy($proxy);
+    function setOptions(array $options=[]){
+        $this->platform->setOptions($options);
     }
 }
